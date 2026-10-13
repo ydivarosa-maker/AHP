@@ -1,0 +1,1366 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Dashboard Sistem Pendukung Keputusan pemilihan mobil dengan metode AHP."
+    />
+    <title>AutoSelect AHP DSS — Pemilihan Mobil</title>
+    <style>
+      :root {
+        font-family: Inter, "Segoe UI", Arial, sans-serif;
+        color: #172554;
+        background: #f7f7ff;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        --purple: #5142e8;
+        --purple-dark: #3325ce;
+        --ink: #172554;
+        --muted: #64748b;
+        --line: #e4e7f2;
+        --green: #087c5b;
+        --red: #b42318;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        margin: 0;
+        background:
+          radial-gradient(ellipse at 50% 0, #f1efff 0, transparent 62%), #f8f8ff;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .app {
+        width: min(1320px, calc(100% - 40px));
+        margin: 0 auto;
+        padding-bottom: 48px;
+      }
+
+      .topbar {
+        display: flex;
+        min-height: 55px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 13px;
+        font-weight: 750;
+      }
+
+      .brand-icon {
+        display: grid;
+        width: 27px;
+        height: 27px;
+        place-items: center;
+        border: 1px solid #dcd9ff;
+        border-radius: 7px;
+        background: #f0efff;
+        color: var(--purple);
+      }
+
+      .brand small {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 9px;
+        font-weight: 450;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .button {
+        min-height: 31px;
+        padding: 0 11px;
+        border: 1px solid #d9dced;
+        border-radius: 6px;
+        background: white;
+        color: #38415c;
+        cursor: pointer;
+        font-size: 10px;
+        font-weight: 650;
+      }
+
+      .button:hover {
+        border-color: #a9a1ff;
+        background: #f8f7ff;
+      }
+
+      .button.primary {
+        border-color: var(--purple);
+        background: var(--purple);
+        color: white;
+      }
+
+      .button.primary:hover {
+        background: var(--purple-dark);
+      }
+
+      :focus-visible {
+        outline: 3px solid #c8c2ff;
+        outline-offset: 2px;
+      }
+
+      .hero {
+        padding: 15px 0 12px;
+      }
+
+      .eyebrow {
+        margin: 0 0 5px;
+        color: var(--purple);
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        color: #172554;
+        font-size: clamp(21px, 3vw, 28px);
+        letter-spacing: -0.045em;
+      }
+
+      .hero-bottom {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 5px;
+      }
+
+      .hero-copy {
+        margin: 0;
+        color: var(--muted);
+        font-size: 10px;
+      }
+
+      .health-status {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 9px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: #fff;
+        color: #475569;
+        font-size: 9px;
+      }
+
+      .health-status strong {
+        color: var(--green);
+      }
+
+      .dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        margin-right: 4px;
+        border-radius: 50%;
+        background: #17a673;
+      }
+
+      .overview-grid {
+        display: grid;
+        grid-template-columns: 1.05fr 1.14fr 1.14fr 1fr;
+        gap: 10px;
+        margin: 8px 0 14px;
+      }
+
+      .card {
+        min-width: 0;
+        border: 1px solid #e6e8f2;
+        border-radius: 9px;
+        background: #fff;
+        box-shadow: 0 2px 8px rgb(29 39 86 / 3%);
+      }
+
+      .overview-card {
+        min-height: 113px;
+        padding: 12px;
+      }
+
+      .card-label,
+      .step-label {
+        margin: 0 0 7px;
+        color: #71809b;
+        font-size: 8px;
+        font-weight: 750;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+      }
+
+      .recommendation-name {
+        margin: 0 0 2px;
+        font-size: 13px;
+        font-weight: 750;
+      }
+
+      .recommendation-score {
+        margin: 0;
+        color: var(--purple);
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+      }
+
+      .caption {
+        margin: 3px 0 0;
+        color: var(--muted);
+        font-size: 8px;
+        line-height: 1.45;
+      }
+
+      .caption strong {
+        color: var(--green);
+      }
+
+      .card-title-row,
+      .section-title-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .status-pill {
+        padding: 4px 6px;
+        border-radius: 99px;
+        background: #e8f8f0;
+        color: var(--green);
+        font-size: 8px;
+        font-weight: 750;
+        white-space: nowrap;
+      }
+
+      .status-pill.bad {
+        background: #fff0ef;
+        color: var(--red);
+      }
+
+      .consistency-value {
+        margin: 6px 0 2px;
+        font-size: 15px;
+        font-weight: 750;
+      }
+
+      .dimensions-title {
+        margin: 4px 0 6px;
+        font-size: 14px;
+        font-weight: 750;
+      }
+
+      .tag-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+
+      .tag {
+        padding: 3px 5px;
+        border-radius: 4px;
+        background: #f0efff;
+        color: #4035ba;
+        font-size: 8px;
+      }
+
+      .parameter-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px;
+        text-align: center;
+      }
+
+      .parameter {
+        padding: 6px 3px;
+        border-radius: 5px;
+        background: #f3f4ff;
+      }
+
+      .parameter span,
+      .parameter strong {
+        display: block;
+      }
+
+      .parameter span {
+        color: #65718a;
+        font-size: 7px;
+      }
+
+      .parameter strong {
+        margin-top: 3px;
+        color: #263465;
+        font-size: 11px;
+      }
+
+      .section-nav {
+        position: sticky;
+        z-index: 2;
+        top: 0;
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        padding: 5px 0 0;
+        border-bottom: 1px solid var(--line);
+        background: rgb(248 248 255 / 95%);
+      }
+
+      .section-nav a {
+        flex: 1 0 auto;
+        padding: 9px 11px;
+        border-bottom: 2px solid transparent;
+        color: #56627c;
+        font-size: 9px;
+        text-align: center;
+        text-decoration: none;
+      }
+
+      .section-nav a:hover,
+      .section-nav a[aria-current="location"] {
+        border-bottom-color: var(--purple);
+        color: var(--purple);
+      }
+
+      .content-section {
+        scroll-margin-top: 55px;
+        padding-top: 14px;
+      }
+
+      .section-title-row {
+        align-items: center;
+        margin-bottom: 9px;
+      }
+
+      h2 {
+        margin: 0;
+        color: #1f2c51;
+        font-size: 15px;
+        letter-spacing: -0.02em;
+      }
+
+      .section-subtitle {
+        margin: 3px 0 0;
+        color: var(--muted);
+        font-size: 9px;
+      }
+
+      .section-chip {
+        padding: 5px 7px;
+        border-radius: 5px;
+        background: #f0efff;
+        color: #4338ca;
+        font-size: 8px;
+        font-weight: 700;
+      }
+
+      .analysis-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(250px, 0.65fr);
+        gap: 10px;
+      }
+
+      .panel {
+        padding: 12px;
+      }
+
+      .panel-heading {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 9px;
+      }
+
+      .panel-heading h3 {
+        margin: 0;
+        color: #293657;
+        font-size: 11px;
+      }
+
+      .panel-heading p {
+        margin: 3px 0 0;
+        color: var(--muted);
+        font-size: 8px;
+      }
+
+      .table-scroll {
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 9px;
+        white-space: nowrap;
+      }
+
+      th,
+      td {
+        padding: 7px 8px;
+        border-bottom: 1px solid var(--line);
+        text-align: center;
+      }
+
+      th {
+        background: #f8f9fd;
+        color: #64718a;
+        font-size: 7px;
+        font-weight: 750;
+        letter-spacing: 0.035em;
+        text-transform: uppercase;
+      }
+
+      td:first-child,
+      th:first-child {
+        text-align: left;
+      }
+
+      tbody tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .criteria-table input {
+        width: 48px;
+        height: 23px;
+        padding: 2px 4px;
+        border: 1px solid #dce2ef;
+        border-radius: 4px;
+        background: #fff;
+        color: #263450;
+        font-size: 9px;
+        text-align: center;
+      }
+
+      .criteria-table input[aria-invalid="true"] {
+        border-color: #d92d20;
+        background: #fff5f4;
+      }
+
+      .criteria-table .diagonal {
+        background: #eef0ff;
+        color: #33426e;
+        font-weight: 700;
+      }
+
+      .criteria-table .priority-cell {
+        color: var(--purple);
+        font-weight: 750;
+      }
+
+      .criteria-table .total-row td {
+        background: #f7f8fc;
+        font-weight: 750;
+      }
+
+      .table-footnote {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        margin: 7px 1px 0;
+        color: #7a8498;
+        font-size: 7px;
+      }
+
+      .donut-wrap {
+        display: grid;
+        min-height: 126px;
+        place-items: center;
+        padding: 3px 0 8px;
+      }
+
+      .donut {
+        display: grid;
+        width: 102px;
+        aspect-ratio: 1;
+        place-items: center;
+        border-radius: 50%;
+        background: conic-gradient(
+          #5142e8 0 33%,
+          #7367ee 33% 88%,
+          #b4c7ff 88% 100%
+        );
+      }
+
+      .donut::after {
+        width: 62%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: white;
+        content: "";
+      }
+
+      .legend {
+        display: grid;
+        gap: 5px;
+      }
+
+      .legend-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid #edf0f6;
+        color: #46536d;
+        font-size: 8px;
+      }
+
+      .legend-dot {
+        width: 7px;
+        height: 7px;
+        flex: 0 0 auto;
+        border-radius: 50%;
+        background: var(--dot);
+      }
+
+      .legend-row strong {
+        margin-left: auto;
+        color: #263450;
+      }
+
+      .helper-note {
+        margin: 8px 0 0;
+        color: #71809b;
+        font-size: 8px;
+        line-height: 1.5;
+      }
+
+      .matrix-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .matrix-panel {
+        min-width: 0;
+      }
+
+      .matrix-table {
+        min-width: 340px;
+      }
+
+      .matrix-table input {
+        width: 49px;
+        height: 22px;
+        padding: 2px 3px;
+        border: 1px solid #dce2ef;
+        border-radius: 4px;
+        font-size: 9px;
+        text-align: center;
+      }
+
+      .matrix-table .diagonal {
+        background: #eef0ff;
+        font-weight: 700;
+      }
+
+      .matrix-table .derived {
+        color: #59677f;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .result-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(260px, 0.85fr);
+        gap: 10px;
+      }
+
+      .score-bars {
+        display: grid;
+        gap: 10px;
+      }
+
+      .score-row {
+        display: grid;
+        grid-template-columns: minmax(90px, 1fr) minmax(80px, 1.5fr) 48px;
+        align-items: center;
+        gap: 8px;
+        font-size: 9px;
+      }
+
+      .score-track {
+        overflow: hidden;
+        height: 8px;
+        border-radius: 99px;
+        background: #eff0f7;
+      }
+
+      .score-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #8175f2, #4938db);
+      }
+
+      .score-row:first-child .score-fill {
+        background: linear-gradient(90deg, #38bb8d, #07815e);
+      }
+
+      .score-row strong {
+        text-align: right;
+      }
+
+      .ranking-table .winner td {
+        background: #effaf4;
+        font-weight: 750;
+      }
+
+      .consistency-panel {
+        margin-top: 14px;
+      }
+
+      .consistency-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .metric {
+        min-height: 65px;
+        padding: 9px;
+        border: 1px solid #e4e6f5;
+        border-radius: 7px;
+        background: #f7f7ff;
+      }
+
+      .metric-label {
+        margin: 0 0 6px;
+        color: #6a7691;
+        font-size: 7px;
+        font-weight: 750;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .metric-value {
+        margin: 0;
+        color: #293657;
+        font-size: 13px;
+        font-weight: 750;
+      }
+
+      .metric-caption {
+        margin: 3px 0 0;
+        color: #7a8498;
+        font-size: 7px;
+      }
+
+      .conclusion {
+        margin: 8px 0 0;
+        padding: 9px 10px;
+        border-radius: 6px;
+        background: #f4f3ff;
+        color: #3d4382;
+        font-size: 8px;
+        line-height: 1.5;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        clip-path: inset(50%);
+      }
+
+      @media (max-width: 850px) {
+        .overview-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .matrix-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .app {
+          width: calc(100% - 24px);
+        }
+
+        .topbar-note,
+        .hero-copy {
+          display: none;
+        }
+
+        .hero-bottom {
+          justify-content: flex-start;
+        }
+
+        .overview-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 7px;
+        }
+
+        .overview-card {
+          min-height: 104px;
+          padding: 9px;
+        }
+
+        .health-status {
+          flex-wrap: wrap;
+        }
+
+        .analysis-grid,
+        .result-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .metric-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .section-nav a {
+          font-size: 8px;
+        }
+
+        .score-row {
+          grid-template-columns: minmax(82px, 1fr) minmax(65px, 1.2fr) 45px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-icon" aria-hidden="true">▣</span>
+          <span
+            >AutoSelect AHP DSS<small
+              >Sistem Pendukung Keputusan Pemilihan Mobil</small
+            ></span
+          >
+        </div>
+        <div class="header-actions">
+          <button class="button" id="reset-button" type="button">
+            ↶ Reset Nilai Default
+          </button>
+          <button class="button primary" id="calculate-button" type="button">
+            ▣ Hitung Ulang
+          </button>
+        </div>
+      </header>
+
+      <section class="hero" aria-labelledby="page-title">
+        <p class="eyebrow">Decision Engine v2.4　 Multikriteria Evaluation</p>
+        <h1 id="page-title">
+          Sistem Pendukung Keputusan Pemilihan Mobil (AHP)
+        </h1>
+        <div class="hero-bottom">
+          <p class="hero-copy">
+            Analisis Keputusan Multikriteria dengan Analytic Hierarchy Process
+            (Metode Saaty)
+          </p>
+          <div class="health-status" aria-live="polite">
+            <strong id="top-consistency"
+              ><span class="dot"></span>Matriks konsisten</strong
+            >
+            <span>Random Index (RI) n=3: 0.58 | n=4: 0.90</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="overview-grid" aria-label="Ringkasan analisis">
+        <article class="card overview-card">
+          <p class="card-label">Rekomendasi teratas</p>
+          <p class="recommendation-name" id="winner-name">—</p>
+          <p class="recommendation-score" id="winner-score">—</p>
+          <p class="caption">Skor global tertinggi</p>
+          <p class="caption">
+            Keunggulan dominan: <strong id="dominant-criterion">—</strong>
+          </p>
+        </article>
+        <article class="card overview-card">
+          <div class="card-title-row">
+            <p class="card-label">Status konsistensi (CR)</p>
+            <span class="status-pill" id="overall-status">—</span>
+          </div>
+          <p class="consistency-value">
+            CR Kriteria = <span id="criteria-cr">—</span>
+          </p>
+          <p class="caption">
+            Rasio konsistensi ≤10%, pertimbangan preferensi logis dan dapat
+            diterima.
+          </p>
+          <p class="caption">
+            Batas toleransi: <strong>maks. 0.100 (10%)</strong>
+          </p>
+        </article>
+        <article class="card overview-card">
+          <p class="card-label">Dimensi keputusan</p>
+          <p class="dimensions-title">3 Kriteria / 4 Alternatif</p>
+          <div class="tag-list">
+            <span class="tag">Style (S)</span>
+            <span class="tag">Keandalan (K)</span>
+            <span class="tag">Konsumsi BBM (B)</span>
+          </div>
+          <p class="caption">Alternatif: Avanza, Xenia, Ertiga, Grand Livina</p>
+        </article>
+        <article class="card overview-card">
+          <div class="card-title-row">
+            <p class="card-label">Parameter Saaty (kriteria)</p>
+            <span aria-hidden="true" style="color: var(--purple)">Σ</span>
+          </div>
+          <div class="parameter-grid">
+            <div class="parameter">
+              <span>λ Maks</span><strong id="lambda-value">—</strong>
+            </div>
+            <div class="parameter">
+              <span>CI</span><strong id="ci-value">—</strong>
+            </div>
+            <div class="parameter">
+              <span>RI (n=3)</span><strong>0.58</strong>
+            </div>
+          </div>
+          <p class="caption">
+            Formula: <span>CI = (λ maks - n) / (n - 1)</span>
+          </p>
+        </article>
+      </section>
+
+      <nav class="section-nav" aria-label="Navigasi dashboard">
+        <a href="#criteria-section"
+          >☷　1. Matriks Kriteria &amp; Bobot Prioritas</a
+        >
+        <a href="#alternatives-section"
+          >▣　2. Matriks Alternatif per Kriteria</a
+        >
+        <a href="#results-section"
+          >♜　3. Hasil Akhir &amp; Sintesis (Ranking)</a
+        >
+        <a href="#consistency-section"
+          >◉　Skala Saaty (1: Sama / 9: Mutlak Lebih Penting)</a
+        >
+      </nav>
+
+      <section class="content-section" id="criteria-section">
+        <div class="analysis-grid">
+          <article class="card panel">
+            <div class="panel-heading">
+              <div>
+                <h3>Matriks Perbandingan Berpasangan Antar Kriteria</h3>
+                <p>
+                  Perbandingan kepentingan relatif antara Style (S), Keandalan
+                  (K), dan Konsumsi Bahan Bakar (B).
+                </p>
+              </div>
+              <span class="section-chip">Matriks 3×3<br />Reciprocal</span>
+            </div>
+            <div class="table-scroll" id="criteria-matrix"></div>
+            <div class="table-footnote">
+              <span
+                >◉ Diagonal utama selalu 1.0 (perbandingan terhadap diri
+                sendiri)</span
+              >
+              <span>Nilai timbal balik otomatis dihitung: y = 1/x</span>
+            </div>
+            <p class="helper-note" id="input-error" aria-live="polite"></p>
+          </article>
+          <article class="card panel">
+            <div class="panel-heading">
+              <div>
+                <h3>Distribusi Bobot Kriteria</h3>
+                <p>Prioritas relatif untuk keputusan pemilihan mobil.</p>
+              </div>
+              <span aria-hidden="true" style="color: var(--purple)">◉</span>
+            </div>
+            <div class="donut-wrap">
+              <div
+                class="donut"
+                id="criteria-donut"
+                role="img"
+                aria-label="Diagram bobot kriteria"
+              ></div>
+            </div>
+            <div class="legend" id="criteria-legend"></div>
+            <p class="helper-note">
+              Keandalan menjadi faktor penentu utama keputusan pemilihan mobil.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="content-section" id="alternatives-section">
+        <div class="section-title-row">
+          <div>
+            <h2>Matriks Alternatif per Kriteria</h2>
+            <p class="section-subtitle">
+              Bandingkan mobil untuk masing-masing kriteria; ubah nilai pada
+              segitiga atas matriks.
+            </p>
+          </div>
+          <span class="section-chip">Skala Saaty 1–9</span>
+        </div>
+        <div class="matrix-grid" id="alternative-matrices"></div>
+      </section>
+
+      <section class="content-section" id="results-section">
+        <div class="section-title-row">
+          <div>
+            <h2>Hasil Akhir &amp; Sintesis (Ranking)</h2>
+            <p class="section-subtitle">
+              Skor akhir adalah jumlah bobot lokal alternatif dikalikan bobot
+              kriteria.
+            </p>
+          </div>
+        </div>
+        <div class="result-grid">
+          <article class="card panel">
+            <div class="panel-heading">
+              <div>
+                <h3>Visualisasi Skor Prioritas Global</h3>
+                <p>Perbandingan skor akhir seluruh alternatif.</p>
+              </div>
+            </div>
+            <div class="score-bars" id="score-bars"></div>
+          </article>
+          <article class="card panel">
+            <div class="panel-heading">
+              <div>
+                <h3>Peringkat Rekomendasi</h3>
+                <p>Diurutkan dari skor tertinggi ke terendah.</p>
+              </div>
+            </div>
+            <div class="table-scroll" id="ranking-table"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="content-section" id="consistency-section">
+        <article class="card panel consistency-panel">
+          <div class="consistency-top">
+            <div>
+              <h2>Uji Konsistensi Logika (Consistency Test AHP)</h2>
+              <p class="section-subtitle">
+                Langkah pembuktian matematis apakah hasil perbandingan logis dan
+                tidak kontradiktif.
+              </p>
+            </div>
+            <span class="status-pill" id="consistency-verdict">—</span>
+          </div>
+          <div class="metric-grid">
+            <div class="metric">
+              <p class="metric-label">Langkah 1: Nilai Eigen (λ maks)</p>
+              <p class="metric-value" id="metric-lambda">—</p>
+              <p class="metric-caption">λ maks = (Total Kolom × Bobot) / n</p>
+            </div>
+            <div class="metric">
+              <p class="metric-label">Langkah 2: Indeks Konsistensi (CI)</p>
+              <p class="metric-value" id="metric-ci">—</p>
+              <p class="metric-caption">CI = (λ maks - n) / (n - 1)</p>
+            </div>
+            <div class="metric">
+              <p class="metric-label">Langkah 3: Indeks Acak (RI)</p>
+              <p class="metric-value">0.5800</p>
+              <p class="metric-caption">
+                Tabel Saaty untuk ukuran matriks n = 3
+              </p>
+            </div>
+            <div class="metric">
+              <p class="metric-label">Langkah 4: Rasio Konsistensi (CR)</p>
+              <p class="metric-value" id="metric-cr">—</p>
+              <p class="metric-caption">
+                CR = CI / RI; CR ≤ 0.1 berarti konsisten
+              </p>
+            </div>
+          </div>
+          <p
+            class="conclusion"
+            id="consistency-conclusion"
+            aria-live="polite"
+          ></p>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      (() => {
+        "use strict";
+
+        const RI = { 1: 0, 2: 0, 3: 0.58, 4: 0.9, 5: 1.12 };
+        const COLORS = ["#5142e8", "#7367ee", "#b4c7ff"];
+        const criteria = ["Style (S)", "Keandalan (K)", "Konsumsi BBM (B)"];
+        const alternatives = ["Avanza", "Xenia", "Ertiga", "Grand Livina"];
+        const matrices = [
+          {
+            id: "criteria",
+            title: "Matriks Kriteria",
+            labels: criteria,
+            values: [
+              [1, 0.5, 3],
+              [2, 1, 4],
+              [1 / 3, 0.25, 1],
+            ],
+          },
+          {
+            id: "style",
+            title: "Kriteria: Style (S)",
+            labels: alternatives,
+            values: [
+              [1, 2, 1 / 3, 0.25],
+              [0.5, 1, 0.5, 0.2],
+              [3, 2, 1, 2],
+              [4, 5, 0.5, 1],
+            ],
+          },
+          {
+            id: "reliability",
+            title: "Kriteria: Keandalan (K)",
+            labels: alternatives,
+            values: [
+              [1, 2, 0.25, 1 / 3],
+              [0.5, 1, 0.2, 0.25],
+              [4, 5, 1, 3],
+              [3, 4, 1 / 3, 1],
+            ],
+          },
+          {
+            id: "fuel",
+            title: "Kriteria: Konsumsi BBM (B)",
+            labels: alternatives,
+            values: [
+              [1, 2, 0.5, 4],
+              [0.5, 1, 1 / 1.5, 3],
+              [2, 1.5, 1, 4],
+              [0.25, 1 / 3, 0.25, 1],
+            ],
+          },
+        ];
+        const initialValues = matrices.map((matrix) =>
+          matrix.values.map((row) => [...row]),
+        );
+        const $ = (id) => document.getElementById(id);
+        const format = (value, digits = 4) => value.toFixed(digits);
+
+        function calcAHP(matrix) {
+          const size = matrix.length;
+          const columnTotals = Array(size).fill(0);
+          for (let column = 0; column < size; column += 1) {
+            for (let row = 0; row < size; row += 1) {
+              columnTotals[column] += matrix[row][column];
+            }
+          }
+
+          const weights = Array(size).fill(0);
+          for (let row = 0; row < size; row += 1) {
+            for (let column = 0; column < size; column += 1) {
+              weights[row] += matrix[row][column] / columnTotals[column];
+            }
+            weights[row] /= size;
+          }
+
+          let lambdaMax = 0;
+          for (let row = 0; row < size; row += 1) {
+            let weightedTotal = 0;
+            for (let column = 0; column < size; column += 1) {
+              weightedTotal += matrix[row][column] * weights[column];
+            }
+            lambdaMax += weightedTotal / weights[row];
+          }
+          lambdaMax /= size;
+
+          const ci =
+            size < 3 ? 0 : Math.max(0, (lambdaMax - size) / (size - 1));
+          const randomIndex = RI[size] ?? 1.12;
+          const cr = randomIndex === 0 ? 0 : ci / randomIndex;
+          return {
+            weights,
+            lambdaMax,
+            ci,
+            ri: randomIndex,
+            cr,
+            isConsistent: cr <= 0.1,
+          };
+        }
+
+        function displayValue(value) {
+          if (Math.abs(value - 1) < 1e-10) return "1.000";
+          if (value >= 1) return format(value, 3);
+          return format(value, 3);
+        }
+
+        function matrixMarkup(matrix, editable) {
+          const result = calcAHP(matrix.values);
+          const header = matrix.labels
+            .map((label) => `<th scope="col">${label}</th>`)
+            .join("");
+          const rows = matrix.labels
+            .map((label, row) => {
+              const cells = matrix.labels
+                .map((_, column) => {
+                  if (row === column) return '<td class="diagonal">1.000</td>';
+                  if (row > column) {
+                    const inputId = `${matrix.id}-${column}-${row}`;
+                    return `<td class="derived" id="${inputId}-reciprocal">${displayValue(matrix.values[row][column])}</td>`;
+                  }
+                  const value = matrix.values[row][column];
+                  const minimum = 1 / 9;
+                  return `<td><input type="number" inputmode="decimal" min="${minimum}" max="9" step="any" value="${value}" aria-label="${matrix.labels[row]} dibanding ${matrix.labels[column]}" data-matrix="${matrix.id}" data-row="${row}" data-column="${column}" autocomplete="off" /></td>`;
+                })
+                .join("");
+              const priority = `<td class="priority-cell" id="${matrix.id}-weight-${row}">${format(result.weights[row] * 100, 1)}%</td>`;
+              return `<tr><td>${label}</td>${cells}${editable ? priority : ""}</tr>`;
+            })
+            .join("");
+          const totalRow = editable
+            ? `<tr class="total-row"><td>Total Kolom</td>${matrix.values[0]
+                .map(
+                  (_, column) =>
+                    `<td id="criteria-total-${column}">${format(
+                      matrix.values.reduce(
+                        (total, row) => total + row[column],
+                        0,
+                      ),
+                      3,
+                    )}</td>`,
+                )
+                .join("")}<td id="criteria-weight-total">100.0%</td></tr>`
+            : "";
+          const priorityHeader = editable
+            ? '<th scope="col">Prioritas (%)</th>'
+            : "";
+          return `<table class="${editable ? "criteria-table" : "matrix-table"}"><thead><tr><th scope="col">Kriteria</th>${header}${priorityHeader}</tr></thead><tbody>${rows}${totalRow}</tbody></table>`;
+        }
+
+        function buildMatrices() {
+          $("criteria-matrix").innerHTML = matrixMarkup(matrices[0], true);
+          $("alternative-matrices").innerHTML = matrices
+            .slice(1)
+            .map((matrix) => {
+              const result = calcAHP(matrix.values);
+              return `<article class="card panel matrix-panel"><div class="panel-heading"><div><h3>${matrix.title}</h3><p>CR = <span id="${matrix.id}-cr">${format(result.cr, 3)}</span></p></div><span class="status-pill ${result.isConsistent ? "" : "bad"}" id="${matrix.id}-status">${result.isConsistent ? "Konsisten" : "Tinjau"}</span></div><div class="table-scroll">${matrixMarkup(matrix, false)}</div></article>`;
+            })
+            .join("");
+        }
+
+        function refreshCriteriaTable() {
+          const matrix = matrices[0];
+          const result = calcAHP(matrix.values);
+          for (let row = 0; row < matrix.labels.length; row += 1) {
+            $(`criteria-weight-${row}`).textContent =
+              `${format(result.weights[row] * 100, 1)}%`;
+          }
+          for (let column = 0; column < matrix.labels.length; column += 1) {
+            $(`criteria-total-${column}`).textContent = format(
+              matrix.values.reduce((total, row) => total + row[column], 0),
+              3,
+            );
+          }
+          $("criteria-weight-total").textContent = `${format(
+            result.weights.reduce((total, weight) => total + weight, 0) * 100,
+            1,
+          )}%`;
+          for (let row = 1; row < matrix.labels.length; row += 1) {
+            for (let column = 0; column < row; column += 1) {
+              $(`criteria-${column}-${row}-reciprocal`).textContent =
+                displayValue(matrix.values[row][column]);
+            }
+          }
+        }
+
+        function refreshMatrixStatus(matrix, result) {
+          const cr = $(`${matrix.id}-cr`);
+          const status = $(`${matrix.id}-status`);
+          if (cr) cr.textContent = format(result.cr, 3);
+          if (status) {
+            status.textContent = result.isConsistent ? "Konsisten" : "Tinjau";
+            status.classList.toggle("bad", !result.isConsistent);
+          }
+        }
+
+        function renderResults() {
+          const results = matrices.map((matrix) => calcAHP(matrix.values));
+          const criteriaResult = results[0];
+          const alternativesResults = results.slice(1);
+          const ranked = alternatives
+            .map((name, index) => ({
+              name,
+              score: alternativesResults.reduce(
+                (score, result, criterion) =>
+                  score +
+                  result.weights[index] * criteriaResult.weights[criterion],
+                0,
+              ),
+            }))
+            .sort((a, b) => b.score - a.score);
+          const leadingCriterionIndex = criteriaResult.weights.indexOf(
+            Math.max(...criteriaResult.weights),
+          );
+          const consistentCount = results.filter(
+            (result) => result.isConsistent,
+          ).length;
+          const allConsistent = consistentCount === results.length;
+
+          $("winner-name").textContent = ranked[0].name;
+          $("winner-score").textContent =
+            `${format(ranked[0].score * 100, 1)}%`;
+          $("dominant-criterion").textContent = criteria[leadingCriterionIndex];
+          $("criteria-cr").textContent = format(criteriaResult.cr, 3);
+          $("lambda-value").textContent = format(criteriaResult.lambdaMax, 3);
+          $("ci-value").textContent = format(criteriaResult.ci, 3);
+          $("metric-lambda").textContent = format(criteriaResult.lambdaMax);
+          $("metric-ci").textContent = format(criteriaResult.ci);
+          $("metric-cr").textContent =
+            `${format(criteriaResult.cr)} (${format(criteriaResult.cr * 100, 2)}%)`;
+
+          $("overall-status").textContent = allConsistent
+            ? "CR ≤ 0.10 (Valid)"
+            : `${consistentCount}/${results.length} konsisten`;
+          $("overall-status").classList.toggle("bad", !allConsistent);
+          $("consistency-verdict").textContent = allConsistent
+            ? `● CR = ${format(criteriaResult.cr, 3)} ≤ 0.10 (Konsistensi Sangat Baik)`
+            : `● ${consistentCount} dari ${results.length} matriks konsisten`;
+          $("consistency-verdict").classList.toggle("bad", !allConsistent);
+          $("top-consistency").innerHTML = allConsistent
+            ? '<span class="dot"></span>Matriks konsisten'
+            : '<span class="dot" style="background:#d92d20"></span>Perlu tinjau konsistensi';
+
+          let boundary = 0;
+          const segments = criteriaResult.weights
+            .map((weight, index) => {
+              const start = boundary;
+              boundary += weight * 100;
+              return `${COLORS[index]} ${format(start, 3)}% ${format(boundary, 3)}%`;
+            })
+            .join(", ");
+          $("criteria-donut").style.background = `conic-gradient(${segments})`;
+          $("criteria-donut").setAttribute(
+            "aria-label",
+            `Bobot kriteria ${criteria
+              .map(
+                (name, index) =>
+                  `${name} ${format(criteriaResult.weights[index] * 100, 1)} persen`,
+              )
+              .join(", ")}`,
+          );
+          $("criteria-legend").innerHTML = criteria
+            .map(
+              (name, index) =>
+                `<div class="legend-row"><span class="legend-dot" style="--dot:${COLORS[index]}"></span><span>${name}</span><strong>${format(criteriaResult.weights[index] * 100, 1)}%</strong></div>`,
+            )
+            .join("");
+
+          matrices.forEach((matrix, index) =>
+            refreshMatrixStatus(matrix, results[index]),
+          );
+          $("score-bars").innerHTML = ranked
+            .map(
+              (item, index) =>
+                `<div class="score-row"><span>${item.name}</span><div class="score-track" role="img" aria-label="Skor ${item.name} ${format(item.score * 100, 1)} persen"><div class="score-fill" style="width:${(item.score / ranked[0].score) * 100}%"></div></div><strong>${format(item.score, 4)}</strong></div>`,
+            )
+            .join("");
+          $("ranking-table").innerHTML =
+            `<table class="ranking-table"><thead><tr><th scope="col">Rank</th><th scope="col">Alternatif</th><th scope="col">Skor Akhir</th></tr></thead><tbody>${ranked
+              .map(
+                (item, index) =>
+                  `<tr class="${index === 0 ? "winner" : ""}"><td>#${index + 1}</td><td>${item.name}</td><td>${format(item.score, 4)}</td></tr>`,
+              )
+              .join("")}</tbody></table>`;
+
+          const conclusion = allConsistent
+            ? `✓ Kesimpulan Uji Konsistensi: Nilai CR diperoleh sebesar ${format(criteriaResult.cr)}. Nilai ini berada di bawah batas ambang kritis 0,10 (10%), perbandingan preferensi dinyatakan valid secara ilmiah dan dapat langsung digunakan untuk mengevaluasi peringkat mobil alternatif.`
+            : `⚠ Kesimpulan Uji Konsistensi: ${consistentCount} dari ${results.length} matriks memenuhi batas CR ≤ 0,10. Tinjau kembali matriks yang berstatus "Tinjau" sebelum menggunakan peringkat sebagai rekomendasi.`;
+          $("consistency-conclusion").textContent = conclusion;
+        }
+
+        function calculate() {
+          refreshCriteriaTable();
+          renderResults();
+          $("input-error").textContent = "";
+        }
+
+        document.addEventListener("change", (event) => {
+          const input = event.target;
+          if (!(input instanceof HTMLInputElement) || !input.dataset.matrix)
+            return;
+          const matrix = matrices.find(
+            (item) => item.id === input.dataset.matrix,
+          );
+          const row = Number(input.dataset.row);
+          const column = Number(input.dataset.column);
+          const value = input.valueAsNumber;
+          const valid =
+            matrix &&
+            Number.isInteger(row) &&
+            Number.isInteger(column) &&
+            row < column &&
+            row >= 0 &&
+            column < matrix.labels.length &&
+            Number.isFinite(value) &&
+            value >= 1 / 9 &&
+            value <= 9;
+
+          if (!valid) {
+            input.setAttribute("aria-invalid", "true");
+            input.value = matrix
+              ? String(matrix.values[row]?.[column] ?? 1)
+              : "";
+            $("input-error").textContent =
+              "Nilai tidak valid. Masukkan angka antara 0,111… dan 9; nilai sebelumnya dipertahankan.";
+            return;
+          }
+
+          input.removeAttribute("aria-invalid");
+          matrix.values[row][column] = value;
+          matrix.values[column][row] = 1 / value;
+          $("input-error").textContent = "";
+          calculate();
+          const reciprocal = $(`${matrix.id}-${column}-${row}-reciprocal`);
+          if (reciprocal) {
+            reciprocal.textContent = displayValue(matrix.values[column][row]);
+          }
+        });
+
+        $("calculate-button").addEventListener("click", calculate);
+        $("reset-button").addEventListener("click", () => {
+          matrices.forEach((matrix, index) => {
+            matrix.values = initialValues[index].map((row) => [...row]);
+          });
+          $("input-error").textContent = "";
+          buildMatrices();
+          calculate();
+        });
+
+        buildMatrices();
+        calculate();
+      })();
+    </script>
+  </body>
+</html>
